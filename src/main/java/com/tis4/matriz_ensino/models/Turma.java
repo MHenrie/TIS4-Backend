@@ -18,20 +18,20 @@ public class Turma {
 
     @NotBlank
     private String nome;
-    private Long supervisorId;
-    private Long professorId;
+    private String supervisor;
+    private String professor;
 
     public Turma() {
 
     }
 
-    public Turma(String nome, long supervisorId, long professorId) {
+    public Turma(String nome, String supervisor, String professor) {
         this.nome = nome;
-        this.supervisorId = supervisorId;
-        this.professorId = professorId;
+        this.supervisor = supervisor;
+        this.professor = professor;
     }
 
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
 
@@ -39,12 +39,12 @@ public class Turma {
         return this.nome;
     }
 
-    public long getSupervisorId() {
-        return this.supervisorId;
+    public String getSupervisor() {
+        return this.supervisor;
     }
 
-    public long getProfessorId() {
-        return this.professorId;
+    public String getProfessor() {
+        return this.professor;
     }
 
 }

@@ -10,8 +10,8 @@ public interface TurmaRepository extends JpaRepository<Turma, Long> {
 
     Turma findById(long id);
 
-    Turma findByProfessorId(long professorId);
+    Turma findByProfessor(String professor);
 
-    Turma findBySupervisorId(long supervisorId);
+    Turma findBySupervisor(String supervisor);
 
 }

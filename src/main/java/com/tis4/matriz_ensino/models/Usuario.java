@@ -41,8 +41,12 @@ public class Usuario {
 
         this.nomeCompleto = nomeCompleto;
         this.username = username;
-        this.senha = Security.crypto(senha);
+        this.setSenha(senha);
         this.tipo = tipo;
+    }
+
+    public void setSenha(String original) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        this.senha = Security.crypto(original);
     }
 
     public Long getId() {
