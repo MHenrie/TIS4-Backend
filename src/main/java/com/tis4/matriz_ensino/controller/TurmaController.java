@@ -1,10 +1,10 @@
-package com.tis4.matriz_ensino.controllers;
+package com.tis4.matriz_ensino.controller;
 
 import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tis4.matriz_ensino.models.Turma;
+import com.tis4.matriz_ensino.model.Turma;
 import com.tis4.matriz_ensino.repository.TurmaRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class TurmaController {
 
     @GetMapping("/turma/{id}")
     public Turma retornaTurma(@PathVariable(value = "id") long id) {
-        return repository.findById(id);
+        return repository.findById(id).get();
     }
 
     @PostMapping("/turma")
