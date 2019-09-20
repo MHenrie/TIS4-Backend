@@ -12,22 +12,21 @@ import lombok.Setter;
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ManipularUsuario {
+public class ManipularTurma {
 
     private Long id;
+
+    @NotBlank
+    private String nome;
     
+    private String supervisor;
     @NotBlank
-    private String nomeCompleto;
-    @NotBlank
-    private String username;
-   
-    private String senha;
-    @NotBlank
-    private String tipo;
+    private String professor;
 
     @NotBlank
     private String usernameAdm;
     @NotBlank
     private String senhaAdm;
-   
+
+    
 }
