@@ -20,7 +20,7 @@ public class ManipularUsuario {
     private String nomeCompleto;
     @NotBlank
     private String username;
-   
+    @NotBlank
     private String senha;
     @NotBlank
     private String tipo;

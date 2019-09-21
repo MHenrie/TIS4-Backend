@@ -30,4 +30,11 @@ public class Turma {
   
     @Setter
     private String professor;
+
+    public Turma(String nome, String supervisor, String professor) {
+        this.nome = nome;
+        this.supervisor = supervisor;
+        this.professor = professor;
+    }
+
 }

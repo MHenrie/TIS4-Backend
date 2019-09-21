@@ -20,7 +20,7 @@ public class ManipularTurma {
     private String nome;
     
     private String supervisor;
-    @NotBlank
+ 
     private String professor;
 
     @NotBlank

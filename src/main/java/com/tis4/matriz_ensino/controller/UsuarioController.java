@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import com.tis4.matriz_ensino.service.DataIntegrityService;
 import com.tis4.matriz_ensino.service.SecurityService;
 import com.tis4.matriz_ensino.model.Usuario;
 import com.tis4.matriz_ensino.model.accessory.AutenticarUsuario;
@@ -32,9 +33,10 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioRepository repository;
-
     @Autowired
     private SecurityService security;
+    @Autowired
+    private DataIntegrityService dataIntegrity;
 
     @GetMapping("/usuarios")
     public List<Usuario> listarUsuarios() {
@@ -54,78 +56,82 @@ public class UsuarioController {
 
     @PostMapping("/usuario")
     @ResponseStatus(HttpStatus.CREATED)
-    public Usuario salvarUsuario(@RequestBody @Valid Usuario usuario) {
-        Optional<Usuario> usernameExistente = repository.findByUsername(usuario.getUsername());
-        Optional<Usuario> idExistente = Optional.empty();
+    public Usuario salvarUsuario(@RequestBody @Valid ManipularUsuario request) {
 
-        if (usuario.getId() != null)
-            idExistente = repository.findById(usuario.getId());
+        if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
 
-        if (usernameExistente.isPresent() && usernameExistente.get().getId() != usuario.getId())
+            if (request.getId() == null) {
+
+                if (dataIntegrity.usernameDisponivel(request.getUsername())) {
+
+                    Usuario usuario = new Usuario(request.getUsername(), request.getNomeCompleto(),
+                            security.crypto(request.getSenha()), request.getTipo());
+
+                    return repository.save(usuario);
+                }
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Já existe um usuário com o USERNAME informado, tente outro");
+            }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Já existe um usuário com o USERNAME informado, tente outro");
-
-        else if (!usernameExistente.isPresent() && !idExistente.isPresent()
-                || usernameExistente.isPresent() && !usernameExistente.get().getSenha().equals(usuario.getSenha()))
-            usuario.setSenha(security.crypto(usuario.getSenha()));
-
-        return repository.save(usuario);
+                    "Não é admitido um valor de ID para criar um novo usuário");
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Falha de Autenticação: você não tem permissão para criar novos usuários");
     }
 
     @PutMapping("/usuario")
     public Usuario atualizarUsuario(@RequestBody @Valid ManipularUsuario request) {
 
-        if (request.getId() != null) {
-            Optional<Usuario> usuarioAtual = repository.findById(request.getId());
+        if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
 
-            if (usuarioAtual.isPresent()) {
+            if (request.getId() != null) {
+                Optional<Usuario> usuarioAtual = repository.findById(request.getId());
 
-                if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
-                    Usuario usuarioAtualizado;
-                    if (request.getSenha() == null
-                            || request.getSenha() != null && request.getSenha().equals(usuarioAtual.get().getSenha()))
-                        usuarioAtualizado = new Usuario(request.getId(), request.getUsername(),
-                                request.getNomeCompleto(), usuarioAtual.get().getSenha(), request.getTipo());
-                    else
-                        usuarioAtualizado = new Usuario(request.getId(), request.getUsername(),
+                if (usuarioAtual.isPresent()) {
+
+                    if (dataIntegrity.usernameEqualsId(request.getUsername(), request.getId())
+                            || dataIntegrity.usernameDisponivel(request.getUsername())) {
+
+                        Usuario usuarioAtualizado = new Usuario(request.getId(), request.getUsername(),
                                 request.getNomeCompleto(), request.getSenha(), request.getTipo());
 
-                    return salvarUsuario(usuarioAtualizado);
+                        if (!request.getSenha().equals(usuarioAtual.get().getSenha()))
+                            usuarioAtualizado.setSenha(security.crypto(request.getSenha()));
+
+                        return repository.save(usuarioAtualizado);
+                    }
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Já existe um usuário com o USERNAME informado, tente outro");
                 }
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                        "Falha de Autenticação: você não tem permissão para alterar os dados deste usuário");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Nenhum usuário foi encontrado com o ID informado");
             }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Nenhum usuário foi encontrado com o ID informado");
+                    "É necessário informar um ID de usuário para realizar alterações");
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "É necessário informar um ID de usuário para realizar alterações");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Falha de Autenticação: você não tem permissão para alterar os dados de usuários");
     }
 
     @DeleteMapping("/usuario")
     public void deletarUsuario(@RequestBody @Valid ManipularUsuario request) {
 
-        if (request.getId() != null) {
-            Optional<Usuario> usuarioAtual = repository.findById(request.getId());
+        if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
 
-            if (usuarioAtual.isPresent()) {
+            if (request.getId() != null) {
 
-                if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
-                    Usuario usuario = repository.findById(request.getId()).get();
-                    if (usuario.getUsername().equals(request.getUsername()))
-                        repository.delete(usuario);
-                    else
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "Erro de Integridade: ID e USERNAME não correspondem.");
-                } else
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                            "Falha de Autenticação: você não tem permissão para excluir este usuário");
+                if (dataIntegrity.usernameEqualsId(request.getUsername(), request.getId()))
+                    repository.deleteById(request.getId());
+
+                else
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Erro de Integridade: ID e USERNAME não correspondem");
             } else
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Nenhum usuário foi encontrado com o ID informado");
+                        "É necessário informar um ID de usuário para realizar uma exclusão");
         } else
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "É necessário informar um ID de usuário para realizar a exclusão");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Falha de Autenticação: você não tem permissão para excluir usuários");
     }
 
     @PostMapping("/usuario/auth")

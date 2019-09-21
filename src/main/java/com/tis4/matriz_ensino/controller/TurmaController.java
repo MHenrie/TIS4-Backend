@@ -31,7 +31,6 @@ public class TurmaController {
 
     @Autowired
     private TurmaRepository repository;
-
     @Autowired
     private SecurityService security;
 
@@ -52,57 +51,66 @@ public class TurmaController {
 
     @PostMapping("/turma")
     @ResponseStatus(HttpStatus.CREATED)
-    public Turma salvarTurma(@RequestBody @Valid Turma turma) {
-        return repository.save(turma);
+    public Turma salvarTurma(@RequestBody @Valid ManipularTurma request) {
+
+        if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
+
+            if (request.getId() == null) {
+                Turma turma = new Turma(request.getNome(), request.getSupervisor(), request.getProfessor());
+
+                return repository.save(turma);
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Não é admitido um valor de ID para criar uma nova turma");
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Falha de Autenticação: você não tem permissão para criar novas turmas");
     }
 
     @PutMapping("/turma")
     public Turma atualizarTurma(@RequestBody @Valid ManipularTurma request) {
 
-        if (request.getId() != null) {
-            Optional<Turma> turmaAtual = repository.findById(request.getId());
+        if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
 
-            if (turmaAtual.isPresent()) {
+            if (request.getId() != null) {
+                Optional<Turma> turmaAtual = repository.findById(request.getId());
 
-                if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
+                if (turmaAtual.isPresent()) {
+
                     Turma turmaAtualizada = new Turma(request.getId(), request.getNome(), request.getSupervisor(),
                             request.getProfessor());
 
-                    return salvarTurma(turmaAtualizada);
+                    return repository.save(turmaAtualizada);
                 }
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                        "Falha de Autenticação: você não tem permissão para alterar os dados desta turma");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Nenhuma turma foi encontrada com o ID informado");
             }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Nenhuma turma foi encontrada com o ID informado");
+                    "É necessário informar um ID de turma para realizar alterações");
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "É necessário informar um ID de turma para realizar alterações");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Falha de Autenticação: você não tem permissão para alterar os dados de turmas");
     }
 
     @DeleteMapping("/turma")
     public void deletarTurma(@RequestBody ManipularTurma request) {
 
-        if (request.getId() != null) {
-            Optional<Turma> turmaAtual = repository.findById(request.getId());
+        if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
 
-            if (turmaAtual.isPresent()) {
+            if (request.getId() != null) {
+                Optional<Turma> turmaAtual = repository.findById(request.getId());
 
-                if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
-                    Turma turma = repository.findById(request.getId()).get();
-                    if (turma.getNome().equals(request.getNome()))
-                        repository.delete(turma);
-                    else
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "Erro de Integridade: ID e NOME não correspondem.");
-                } else
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                            "Falha de Autenticação: você não tem permissão para excluir esta turma");
+                if (turmaAtual.isPresent())
+                    repository.deleteById(request.getId());
+
+                else
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Nenhuma turma foi encontrada com o ID informado");
             } else
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Nenhuma turma foi encontrada com o ID informado");
+                        "É necessário informar um ID de turma para realizar a exclusão");
         } else
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "É necessário informar um ID de turma para realizar a exclusão");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Falha de Autenticação: você não tem permissão para excluir esta turma");
     }
 }

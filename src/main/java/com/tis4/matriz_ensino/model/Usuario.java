@@ -35,5 +35,12 @@ public class Usuario {
 
     @NotBlank
     private String tipo;
-    
+
+    public Usuario(String username, String nomeCompleto, String senha, String tipo) {
+        this.username = username;
+        this.nomeCompleto = nomeCompleto;
+        this.senha = senha;
+        this.tipo = tipo;
+    }
+
 }
