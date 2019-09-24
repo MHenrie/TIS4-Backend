@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TurmaRepository extends JpaRepository<Turma, Long> {
 
-    Optional<Turma> findByProfessor(String professor);
+    Optional<Turma> findByProfessorId(Long professorId);
 
-    Optional<Turma> findBySupervisor(String supervisor);
+    Optional<Turma> findBySupervisorId(Long supervisorId);
 
 }

@@ -14,33 +14,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity @Getter @Setter
+@Entity @Getter
 @AllArgsConstructor @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Usuario {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
   
-    @NotBlank
+    @NotBlank @Setter
     @Column(unique = true)
     private String username;
 
-    @NotBlank
+    @NotBlank @Setter
     private String nomeCompleto;
 
-    @NotBlank
+    @NotBlank @Setter
     private String senha;
 
-    @NotBlank
+    @NotBlank @Setter
     private String tipo;
-
-    public Usuario(String username, String nomeCompleto, String senha, String tipo) {
-        this.username = username;
-        this.nomeCompleto = nomeCompleto;
-        this.senha = senha;
-        this.tipo = tipo;
-    }
 
 }

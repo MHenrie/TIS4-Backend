@@ -7,7 +7,6 @@ import javax.validation.Valid;
 
 import com.tis4.matriz_ensino.service.SecurityService;
 import com.tis4.matriz_ensino.model.Turma;
-import com.tis4.matriz_ensino.model.accessory.ManipularTurma;
 import com.tis4.matriz_ensino.repository.TurmaRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -39,8 +38,8 @@ public class TurmaController {
         return repository.findAll();
     }
 
-    @GetMapping("/turma/{id}")
-    public Turma retornarTurma(@PathVariable Long id) {
+    @GetMapping("/turma")
+    public Turma retornarTurma(@RequestParam("id") Long id) {
         Optional<Turma> turma = repository.findById(id);
 
         if (!turma.isPresent())
@@ -51,15 +50,13 @@ public class TurmaController {
 
     @PostMapping("/turma")
     @ResponseStatus(HttpStatus.CREATED)
-    public Turma salvarTurma(@RequestBody @Valid ManipularTurma request) {
+    public Turma salvarTurma(@RequestBody @Valid Turma turma, @RequestParam("adm") Long adm) {
 
-        if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
+        if (security.permissaoAdmin(adm)) {
 
-            if (request.getId() == null) {
-                Turma turma = new Turma(request.getNome(), request.getSupervisor(), request.getProfessor());
-
+            if (turma.getId() == null)
                 return repository.save(turma);
-            }
+
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Não é admitido um valor de ID para criar uma nova turma");
         }
@@ -68,20 +65,16 @@ public class TurmaController {
     }
 
     @PutMapping("/turma")
-    public Turma atualizarTurma(@RequestBody @Valid ManipularTurma request) {
+    public Turma atualizarTurma(@RequestBody @Valid Turma turma, @RequestParam("adm") Long adm) {
 
-        if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
+        if (security.permissaoAdmin(adm)) {
 
-            if (request.getId() != null) {
-                Optional<Turma> turmaAtual = repository.findById(request.getId());
+            if (turma.getId() != null) {
+                Optional<Turma> turmaAtual = repository.findById(turma.getId());
 
-                if (turmaAtual.isPresent()) {
+                if (turmaAtual.isPresent())
+                    return repository.save(turma);
 
-                    Turma turmaAtualizada = new Turma(request.getId(), request.getNome(), request.getSupervisor(),
-                            request.getProfessor());
-
-                    return repository.save(turmaAtualizada);
-                }
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Nenhuma turma foi encontrada com o ID informado");
             }
@@ -93,23 +86,11 @@ public class TurmaController {
     }
 
     @DeleteMapping("/turma")
-    public void deletarTurma(@RequestBody ManipularTurma request) {
+    public void deletarTurma(@RequestParam("id") Long id, @RequestParam("adm") Long adm) {
 
-        if (security.permissaoAdmin(request.getUsernameAdm(), request.getSenhaAdm())) {
-
-            if (request.getId() != null) {
-                Optional<Turma> turmaAtual = repository.findById(request.getId());
-
-                if (turmaAtual.isPresent())
-                    repository.deleteById(request.getId());
-
-                else
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Nenhuma turma foi encontrada com o ID informado");
-            } else
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "É necessário informar um ID de turma para realizar a exclusão");
-        } else
+        if (security.permissaoAdmin(adm))
+            repository.deleteById(id);
+        else
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Falha de Autenticação: você não tem permissão para excluir esta turma");
     }

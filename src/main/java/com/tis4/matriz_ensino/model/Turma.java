@@ -21,20 +21,19 @@ public class Turma {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Setter
-    @NotBlank
+    @Setter @NotBlank
     private String nome;
-  
-    @Setter
-    private String supervisor;
-  
-    @Setter
-    private String professor;
 
-    public Turma(String nome, String supervisor, String professor) {
-        this.nome = nome;
-        this.supervisor = supervisor;
-        this.professor = professor;
-    }
+    @Setter @NotBlank
+    private String serie;
+
+    @Setter @NotBlank
+    private int ano;
+  
+    @Setter
+    private Long supervisorId;
+  
+    @Setter
+    private Long professorId;
 
 }
