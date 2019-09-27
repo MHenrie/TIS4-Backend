@@ -1,5 +1,6 @@
 package com.tis4.matriz_ensino.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.tis4.matriz_ensino.model.Usuario;
@@ -14,4 +15,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByUsernameAndId(String username, Long id);
 
+    List<Usuario> findAllByTipo(String tipo);
 }

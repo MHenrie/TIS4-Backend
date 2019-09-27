@@ -92,6 +92,6 @@ public class TurmaController {
             repository.deleteById(id);
         else
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Falha de Autenticação: você não tem permissão para excluir esta turma");
+                    "Falha de Autenticação: você não tem permissão para excluir turmas");
     }
 }

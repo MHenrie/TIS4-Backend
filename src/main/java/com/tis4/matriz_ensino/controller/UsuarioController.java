@@ -129,4 +129,14 @@ public class UsuarioController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Nenhum usuário foi encontrado com o USERNAME informado.");
     }
+
+    @GetMapping("/professores")
+    public List<Usuario> listarProfessores() {
+        return repository.findAllByTipo("Professor");
+    }
+
+    @GetMapping("/supervisores")
+    public List<Usuario> listarSupervisores() {
+        return repository.findAllByTipo("Supervisor");
+    }
 }

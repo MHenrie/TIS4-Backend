@@ -5,6 +5,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -27,8 +28,8 @@ public class Turma {
     @Setter @NotBlank
     private String serie;
 
-    @Setter @NotBlank
-    private int ano;
+    @Setter @NotNull
+    private Integer ano;
   
     @Setter
     private Long supervisorId;
