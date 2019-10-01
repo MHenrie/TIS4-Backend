@@ -32,7 +32,7 @@ public class SecurityService {
         }
     }
 
-    public boolean permissaoAdmin(Long id) {
+    public boolean isAdministrador(Long id) {
         Optional<Usuario> administrador = usuarioRepository.findById(id);
 
         if (administrador.isPresent()) {

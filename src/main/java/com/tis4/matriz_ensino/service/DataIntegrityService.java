@@ -29,4 +29,10 @@ public class DataIntegrityService {
         return usuarioExistente.isPresent() ? true : false;
     }
 
+    public boolean mesmaSenha(Long id, String senha) {
+        Optional<Usuario> usuarioAtual = usuarioRepository.findById(id);
+
+        return usuarioAtual.get().getSenha().equals(senha) ? true : false;
+    }
+
 }

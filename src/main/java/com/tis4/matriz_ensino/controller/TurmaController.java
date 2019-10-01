@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,60 +39,54 @@ public class TurmaController {
         return repository.findAll();
     }
 
-    @GetMapping("/turma")
-    public Turma retornarTurma(@RequestParam("id") Long id) {
+    @GetMapping("/turma/{id}")
+    public Turma retornarTurma(@PathVariable Long id) {
         Optional<Turma> turma = repository.findById(id);
 
-        if (!turma.isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma turma foi encontrada com o ID informado");
+        if (turma.isPresent())
+            return turma.get();
 
-        return turma.get();
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhuma turma foi encontrada com o ID informado.");
     }
 
     @PostMapping("/turma")
     @ResponseStatus(HttpStatus.CREATED)
-    public Turma salvarTurma(@RequestBody @Valid Turma turma, @RequestParam("adm") Long adm) {
+    public Turma salvarTurma(@RequestBody @Valid Turma turma, @RequestParam("user") Long userId) {
 
-        if (security.permissaoAdmin(adm)) {
+        if (security.isAdministrador(userId)) {
 
             if (turma.getId() == null)
                 return repository.save(turma);
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Não é admitido um valor de ID para criar uma nova turma");
+                    "Não é admitido um valor de ID para criar uma nova turma.");
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                "Falha de Autenticação: você não tem permissão para criar novas turmas");
+                "Falha de Autenticação: você não tem permissão para criar novas turmas.");
     }
 
     @PutMapping("/turma")
-    public Turma atualizarTurma(@RequestBody @Valid Turma turma, @RequestParam("adm") Long adm) {
+    public Turma atualizarTurma(@RequestBody @Valid Turma turma, @RequestParam("user") Long userId) {
 
-        if (security.permissaoAdmin(adm)) {
+        if (security.isAdministrador(userId)) {
 
-            if (turma.getId() != null) {
-                Optional<Turma> turmaAtual = repository.findById(turma.getId());
+            if (turma.getId() != null)
+                return repository.save(turma);
 
-                if (turmaAtual.isPresent())
-                    return repository.save(turma);
-
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Nenhuma turma foi encontrada com o ID informado");
-            }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "É necessário informar um ID de turma para realizar alterações");
+                    "É necessário informar um ID de turma para realizar alterações.");
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                "Falha de Autenticação: você não tem permissão para alterar os dados de turmas");
+                "Falha de Autenticação: você não tem permissão para alterar os dados de turmas.");
     }
 
-    @DeleteMapping("/turma")
-    public void deletarTurma(@RequestParam("id") Long id, @RequestParam("adm") Long adm) {
+    @DeleteMapping("/turma/{id}")
+    public void deletarTurma(@PathVariable("id") Long turmaId, @RequestParam("user") Long userId) {
 
-        if (security.permissaoAdmin(adm))
-            repository.deleteById(id);
+        if (security.isAdministrador(userId))
+            repository.deleteById(turmaId);
         else
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Falha de Autenticação: você não tem permissão para excluir turmas");
+                    "Falha de Autenticação: você não tem permissão para excluir turmas.");
     }
 }

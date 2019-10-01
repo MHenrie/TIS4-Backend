@@ -1,21 +1,21 @@
-package com.tis4.matriz_ensino.controller;
+// package com.tis4.matriz_ensino.controller;
 
-import com.tis4.matriz_ensino.repository.UsuarioRepository;
-import com.tis4.matriz_ensino.service.SecurityService;
+// import com.tis4.matriz_ensino.repository.DisciplinaRepository;
+// import com.tis4.matriz_ensino.service.SecurityService;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.web.bind.annotation.CrossOrigin;
+// import org.springframework.web.bind.annotation.RequestMapping;
+// import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin
-@RestController
-@RequestMapping("/api")
-public class DisciplinaController {
+// @CrossOrigin
+// @RestController
+// @RequestMapping("/api")
+// public class DisciplinaController {
 
-    @Autowired
-    private UsuarioRepository repository;
-    @Autowired
-    private SecurityService security;
+//     @Autowired
+//     private DisciplinaRepository repository;
+//     @Autowired
+//     private SecurityService security;
 
-}
+// }

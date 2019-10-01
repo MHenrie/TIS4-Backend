@@ -8,7 +8,7 @@ import javax.validation.Valid;
 import com.tis4.matriz_ensino.service.DataIntegrityService;
 import com.tis4.matriz_ensino.service.SecurityService;
 import com.tis4.matriz_ensino.model.Usuario;
-import com.tis4.matriz_ensino.model.accessory.AutenticarUsuario;
+import com.tis4.matriz_ensino.model.accessory.FormLogin;
 import com.tis4.matriz_ensino.repository.UsuarioRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,22 +43,22 @@ public class UsuarioController {
         return repository.findAll();
     }
 
-    @GetMapping("/usuario")
-    public Usuario retornarUsuario(@RequestParam("username") String username) {
+    @GetMapping("/usuario/{username}")
+    public Usuario retornarUsuario(@PathVariable String username) {
         Optional<Usuario> usuario = repository.findByUsername(username);
 
-        if (!usuario.isPresent())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Nenhum usuário encontrado com o USERNAME informado.");
+        if (usuario.isPresent())
+            return usuario.get();
 
-        return usuario.get();
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Nenhum usuário foi encontrado com o USERNAME informado.");
     }
 
     @PostMapping("/usuario")
     @ResponseStatus(HttpStatus.CREATED)
-    public Usuario salvarUsuario(@RequestBody @Valid Usuario usuario, @RequestParam("adm") Long adm) {
+    public Usuario salvarUsuario(@RequestBody @Valid Usuario usuario, @RequestParam("user") Long userId) {
 
-        if (security.permissaoAdmin(adm)) {
+        if (security.isAdministrador(userId)) {
 
             if (usuario.getId() == null) {
 
@@ -75,48 +76,44 @@ public class UsuarioController {
     }
 
     @PutMapping("/usuario")
-    public Usuario atualizarUsuario(@RequestBody @Valid Usuario usuario, @RequestParam("adm") Long adm) {
+    public Usuario atualizarUsuario(@RequestBody @Valid Usuario usuario, @RequestParam("user") Long userId) {
 
-        if (security.permissaoAdmin(adm)) {
+        if (security.isAdministrador(userId)) {
 
             if (usuario.getId() != null) {
-                Optional<Usuario> usuarioAtual = repository.findById(usuario.getId());
 
-                if (usuarioAtual.isPresent()) {
+                if (dataIntegrity.usernameEqualsId(usuario.getUsername(), usuario.getId())
+                        || dataIntegrity.usernameDisponivel(usuario.getUsername())) {
 
-                    if (dataIntegrity.usernameEqualsId(usuario.getUsername(), usuario.getId())
-                            || dataIntegrity.usernameDisponivel(usuario.getUsername())) {
+                    if (!dataIntegrity.mesmaSenha(usuario.getId(), usuario.getSenha()))
+                        usuario.setSenha(security.crypto(usuario.getSenha()));
 
-                        if (!usuario.getSenha().equals(usuarioAtual.get().getSenha()))
-                            usuario.setSenha(security.crypto(usuario.getSenha()));
-
-                        return repository.save(usuario);
-                    }
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                            "Já existe um usuário com o USERNAME informado, tente outro.");
+                    return repository.save(usuario);
                 }
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        "Nenhum usuário foi encontrado com o ID informado.");
+                        "Já existe um usuário com o USERNAME informado, tente outro.");
             }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "É necessário informar um ID de usuário para realizar alterações.");
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                 "Falha de Autenticação: você não tem permissão para alterar os dados de usuários.");
+
     }
 
-    @DeleteMapping("/usuario")
-    public void deletarUsuario(@RequestParam("id") Long id, @RequestParam("adm") Long adm) {
+    @DeleteMapping("/usuario/{id}")
+    public void deletarUsuario(@PathVariable("id") Long usuarioId, @RequestParam("user") Long userId) {
 
-        if (security.permissaoAdmin(adm))
-            repository.deleteById(id);
+        if (security.isAdministrador(userId))
+            repository.deleteById(usuarioId);
         else
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Falha de Autenticação: você não tem permissão para excluir usuários.");
     }
 
     @PostMapping("/usuario/auth")
-    public Usuario autenticarUsuario(@RequestBody @Valid AutenticarUsuario login) {
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public Usuario autenticarUsuario(@RequestBody @Valid FormLogin login) {
         Optional<Usuario> usuario = repository.findByUsername(login.getUsername());
 
         if (usuario.isPresent()) {
@@ -130,12 +127,12 @@ public class UsuarioController {
                     "Nenhum usuário foi encontrado com o USERNAME informado.");
     }
 
-    @GetMapping("/professores")
+    @GetMapping("usuarios/professores")
     public List<Usuario> listarProfessores() {
         return repository.findAllByTipo("Professor");
     }
 
-    @GetMapping("/supervisores")
+    @GetMapping("usuarios/supervisores")
     public List<Usuario> listarSupervisores() {
         return repository.findAllByTipo("Supervisor");
     }
