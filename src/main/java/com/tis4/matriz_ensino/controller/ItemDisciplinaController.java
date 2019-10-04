@@ -60,10 +60,10 @@ public class ItemDisciplinaController {
                 return repository.save(itemDisciplina);
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Não é admitido um valor de ID para criar um novo item");
+                    "Não é admitido um valor de ID para criar um novo item.");
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                "Falha de Autenticação: você não tem permissão para criar novos itens");
+                "Falha de Autenticação: você não tem permissão para criar novos itens.");
     }
 
     @PutMapping("/item-disciplina")
@@ -83,6 +83,7 @@ public class ItemDisciplinaController {
     }
 
     @DeleteMapping("/item-disciplina/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarItemDisciplina(@PathVariable("id") Long itemId, @RequestParam("user") Long userId) {
 
         if (security.isAdministrador(userId))

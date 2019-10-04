@@ -9,30 +9,71 @@ import javax.validation.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Entity @Getter
-@AllArgsConstructor @NoArgsConstructor
+@Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Usuario {
 
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-  
-    @NotBlank @Setter
-    @Column(unique = true)
+    @NotBlank @Column(unique = true)
     private String username;
-
-    @NotBlank @Setter
+    @NotBlank
     private String nomeCompleto;
-
-    @NotBlank @Setter
+    @NotBlank
     private String senha;
-
-    @NotBlank @Setter
+    @NotBlank
     private String tipo;
+
+    public Usuario() {
+        
+    }
+
+    public Usuario(Long id, String username, String nomeCompleto, String senha, String tipo) {
+        this.id = id;
+        this.username = username;
+        this.nomeCompleto = nomeCompleto;
+        this.senha = senha;
+        this.tipo = tipo;
+    }
+
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getNomeCompleto() {
+        return this.nomeCompleto;
+    }
+
+    public void setNomeCompleto(String nomeCompleto) {
+        this.nomeCompleto = nomeCompleto;
+    }
+
+    public String getSenha() {
+        return this.senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
+    public String getTipo() {
+        return this.tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
 
 }

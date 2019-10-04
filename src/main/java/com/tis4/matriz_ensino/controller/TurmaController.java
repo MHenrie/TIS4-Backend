@@ -81,6 +81,7 @@ public class TurmaController {
     }
 
     @DeleteMapping("/turma/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarTurma(@PathVariable("id") Long turmaId, @RequestParam("user") Long userId) {
 
         if (security.isAdministrador(userId))

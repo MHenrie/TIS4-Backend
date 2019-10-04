@@ -7,10 +7,9 @@ import javax.validation.Valid;
 
 import com.tis4.matriz_ensino.service.DataIntegrityService;
 import com.tis4.matriz_ensino.service.SecurityService;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tis4.matriz_ensino.model.Usuario;
-import com.tis4.matriz_ensino.model.accessory.FormLogin;
 import com.tis4.matriz_ensino.repository.UsuarioRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -62,10 +61,12 @@ public class UsuarioController {
 
             if (usuario.getId() == null) {
 
-                if (dataIntegrity.usernameDisponivel(usuario.getUsername()))
-                    return repository.save(usuario);
+                if (dataIntegrity.usernameDisponivel(usuario.getUsername())) {
 
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    usuario.setSenha(security.crypto(usuario.getSenha()));
+                    return repository.save(usuario);
+                }
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
                         "Já existe um usuário com o USERNAME informado, tente outro.");
             }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -90,7 +91,7 @@ public class UsuarioController {
 
                     return repository.save(usuario);
                 }
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
                         "Já existe um usuário com o USERNAME informado, tente outro.");
             }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -102,6 +103,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/usuario/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarUsuario(@PathVariable("id") Long usuarioId, @RequestParam("user") Long userId) {
 
         if (security.isAdministrador(userId))
@@ -113,11 +115,11 @@ public class UsuarioController {
 
     @PostMapping("/usuario/auth")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Usuario autenticarUsuario(@RequestBody @Valid FormLogin login) {
-        Optional<Usuario> usuario = repository.findByUsername(login.getUsername());
+    public Usuario autenticarUsuario(@RequestBody ObjectNode login) {
+        Optional<Usuario> usuario = repository.findByUsername(login.get("username").asText());
 
         if (usuario.isPresent()) {
-            if (usuario.get().getSenha().equals(security.crypto(login.getSenha())))
+            if (usuario.get().getSenha().equals(security.crypto(login.get("senha").asText())))
                 return usuario.get();
             else
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
@@ -127,12 +129,12 @@ public class UsuarioController {
                     "Nenhum usuário foi encontrado com o USERNAME informado.");
     }
 
-    @GetMapping("usuarios/professores")
+    @GetMapping("/usuarios/professores")
     public List<Usuario> listarProfessores() {
         return repository.findAllByTipo("Professor");
     }
 
-    @GetMapping("usuarios/supervisores")
+    @GetMapping("/usuarios/supervisores")
     public List<Usuario> listarSupervisores() {
         return repository.findAllByTipo("Supervisor");
     }
