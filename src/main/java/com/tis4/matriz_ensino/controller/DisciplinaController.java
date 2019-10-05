@@ -92,4 +92,9 @@ public class DisciplinaController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Falha de Autenticação: você não tem permissão para excluir disciplinas.");
     }
+
+    @GetMapping("/disciplinas/{serie}")
+    public List<Disciplina> listarDisciplinasPorSerie(@PathVariable String serie) {
+        return repository.findAllBySerie(serie);
+    }
 }

@@ -129,13 +129,10 @@ public class UsuarioController {
                     "Nenhum usuário foi encontrado com o USERNAME informado.");
     }
 
-    @GetMapping("/usuarios/professores")
-    public List<Usuario> listarProfessores() {
-        return repository.findAllByTipo("Professor");
-    }
-
-    @GetMapping("/usuarios/supervisores")
-    public List<Usuario> listarSupervisores() {
-        return repository.findAllByTipo("Supervisor");
+    @GetMapping("/usuarios/{categoria}")
+    public List<Usuario> listarUsuariosPorTipo(@PathVariable String categoria) {
+        // Transforma "professor" em "Professor", "supervisor" em "Supervisor"...
+        String tipo = categoria.substring(0, 1).toUpperCase() + categoria.substring(1, categoria.length());
+        return repository.findAllByTipo(tipo);
     }
 }
