@@ -20,17 +20,7 @@ public class Disciplina {
     private String serie;
     @NotBlank
     private String descricao;
-
-    public Disciplina() {
-
-    }
-
-    public Disciplina(Long id, String nome, String serie, String descricao) {
-        this.id = id;
-        this.nome = nome;
-        this.serie = serie;
-        this.descricao = descricao;
-    }
+    
 
     public Long getId() {
         return this.id;

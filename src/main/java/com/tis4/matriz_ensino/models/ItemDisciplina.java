@@ -22,18 +22,7 @@ public class ItemDisciplina {
     private String objetivo;
     @NotBlank
     private Long disciplinaId;
-
-    public ItemDisciplina() {
-
-    }
-
-    public ItemDisciplina(Long id, String nome, String descricao, String objetivo, Long disciplinaId) {
-        this.id = id;
-        this.nome = nome;
-        this.descricao = descricao;
-        this.objetivo = objetivo;
-        this.disciplinaId = disciplinaId;
-    }
+    
 
     public Long getId() {
         return this.id;

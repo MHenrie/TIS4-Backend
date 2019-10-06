@@ -24,17 +24,6 @@ public class Usuario {
     @NotBlank
     private String tipo;
 
-    public Usuario() {
-        
-    }
-
-    public Usuario(Long id, String username, String nomeCompleto, String senha, String tipo) {
-        this.id = id;
-        this.username = username;
-        this.nomeCompleto = nomeCompleto;
-        this.senha = senha;
-        this.tipo = tipo;
-    }
 
     public Long getId() {
         return this.id;

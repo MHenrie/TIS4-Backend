@@ -26,18 +26,6 @@ public class Turma {
 
     private Long professorId;
 
-    public Turma() {
-        
-    }
-
-    public Turma(Long id, String nome, String serie, Integer ano, Long supervisorId, Long professorId) {
-        this.id = id;
-        this.nome = nome;
-        this.serie = serie;
-        this.ano = ano;
-        this.supervisorId = supervisorId;
-        this.professorId = professorId;
-    }
 
     public Long getId() {
         return this.id;
