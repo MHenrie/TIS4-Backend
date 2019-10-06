@@ -1,13 +1,13 @@
-package com.tis4.matriz_ensino.controller;
+package com.tis4.matriz_ensino.controllers;
 
 import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
-import com.tis4.matriz_ensino.model.Disciplina;
-import com.tis4.matriz_ensino.repository.DisciplinaRepository;
-import com.tis4.matriz_ensino.service.SecurityService;
+import com.tis4.matriz_ensino.models.Disciplina;
+import com.tis4.matriz_ensino.repositories.DisciplinaRepository;
+import com.tis4.matriz_ensino.services.SecurityService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

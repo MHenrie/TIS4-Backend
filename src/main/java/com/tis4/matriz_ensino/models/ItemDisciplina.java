@@ -1,4 +1,4 @@
-package com.tis4.matriz_ensino.model;
+package com.tis4.matriz_ensino.models;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,26 +10,29 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Disciplina {
+public class ItemDisciplina {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank
     private String nome;
     @NotBlank
-    private String serie;
-    @NotBlank
     private String descricao;
+    @NotBlank
+    private String objetivo;
+    @NotBlank
+    private Long disciplinaId;
 
-    public Disciplina() {
+    public ItemDisciplina() {
 
     }
 
-    public Disciplina(Long id, String nome, String serie, String descricao) {
+    public ItemDisciplina(Long id, String nome, String descricao, String objetivo, Long disciplinaId) {
         this.id = id;
         this.nome = nome;
-        this.serie = serie;
         this.descricao = descricao;
+        this.objetivo = objetivo;
+        this.disciplinaId = disciplinaId;
     }
 
     public Long getId() {
@@ -48,20 +51,28 @@ public class Disciplina {
         this.nome = nome;
     }
 
-    public String getSerie() {
-        return this.serie;
-    }
-
-    public void setSerie(String serie) {
-        this.serie = serie;
-    }
-
     public String getDescricao() {
         return this.descricao;
     }
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public String getObjetivo() {
+        return this.objetivo;
+    }
+
+    public void setObjetivo(String objetivo) {
+        this.objetivo = objetivo;
+    }
+
+    public Long getDisciplinaId() {
+        return this.disciplinaId;
+    }
+
+    public void setDisciplinaId(Long disciplinaId) {
+        this.disciplinaId = disciplinaId;
     }
 
 }

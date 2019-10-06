@@ -1,8 +1,8 @@
-package com.tis4.matriz_ensino.repository;
+package com.tis4.matriz_ensino.repositories;
 
 import java.util.Optional;
 
-import com.tis4.matriz_ensino.model.Turma;
+import com.tis4.matriz_ensino.models.Turma;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,9 +1,9 @@
-package com.tis4.matriz_ensino.repository;
+package com.tis4.matriz_ensino.repositories;
 
 import java.util.List;
 import java.util.Optional;
 
-import com.tis4.matriz_ensino.model.Usuario;
+import com.tis4.matriz_ensino.models.Usuario;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

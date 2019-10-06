@@ -1,4 +1,4 @@
-package com.tis4.matriz_ensino.model;
+package com.tis4.matriz_ensino.models;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

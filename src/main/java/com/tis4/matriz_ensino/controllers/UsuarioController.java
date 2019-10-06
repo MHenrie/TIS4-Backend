@@ -1,15 +1,15 @@
-package com.tis4.matriz_ensino.controller;
+package com.tis4.matriz_ensino.controllers;
 
 import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
-import com.tis4.matriz_ensino.service.DataIntegrityService;
-import com.tis4.matriz_ensino.service.SecurityService;
+import com.tis4.matriz_ensino.services.DataIntegrityService;
+import com.tis4.matriz_ensino.services.SecurityService;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.tis4.matriz_ensino.model.Usuario;
-import com.tis4.matriz_ensino.repository.UsuarioRepository;
+import com.tis4.matriz_ensino.models.Usuario;
+import com.tis4.matriz_ensino.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
