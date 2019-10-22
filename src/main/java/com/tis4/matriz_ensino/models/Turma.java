@@ -20,10 +20,10 @@ public class Turma {
     @NotBlank
     private String serie;
     @NotNull
-    private Integer ano;
-
+    private Short ano;
+    @NotBlank
     private Long supervisorId;
-
+    @NotBlank
     private Long professorId;
 
 
@@ -51,11 +51,11 @@ public class Turma {
         this.serie = serie;
     }
 
-    public Integer getAno() {
+    public Short getAno() {
         return this.ano;
     }
 
-    public void setAno(Integer ano) {
+    public void setAno(Short ano) {
         this.ano = ano;
     }
 

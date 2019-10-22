@@ -33,11 +33,11 @@ public class SecurityService {
     }
 
     public boolean isAdministrador(Long id) {
-        Optional<Usuario> administrador = usuarioRepository.findById(id);
+        Optional<Usuario> usuario = usuarioRepository.findById(id);
 
-        if (administrador.isPresent()) {
+        if (usuario.isPresent()) {
 
-            if (administrador.get().getTipo().equals("Administrador"))
+            if (usuario.get().getTipo().equals("Administrador"))
                 return true;
 
         } else if (id == 12052019)
@@ -45,4 +45,15 @@ public class SecurityService {
 
         return false;
     }
+
+    public boolean isProfessor(Long id) {
+        Optional<Usuario> usuario = usuarioRepository.findById(id);
+
+        if (usuario.isPresent()) {
+            if (usuario.get().getTipo().equals("Professor"))
+                return true;
+        }
+        return false;
+    }
+
 }

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ItemDisciplina {
+public class ItemTurma {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,6 +25,12 @@ public class ItemDisciplina {
     private Long disciplinaId;
     @NotNull
     private Byte bimestre; 
+    @NotNull
+    private Long turmaId;
+    @NotNull
+    private Boolean global;
+
+    private String status = "Pendente";
 
 
     public Long getId() {
@@ -73,6 +79,30 @@ public class ItemDisciplina {
 
     public void setBimestre(Byte bimestre) {
         this.bimestre = bimestre;
+    }
+
+    public Long getTurmaId() {
+        return this.turmaId;
+    }
+
+    public void setTurmaId(Long turmaId) {
+        this.turmaId = turmaId;
+    }
+
+    public Boolean isGlobal() {
+        return this.global;
+    }
+
+    public void setGlobal(Boolean global) {
+        this.global = global;
+    }
+
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
 }
