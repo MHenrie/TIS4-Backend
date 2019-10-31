@@ -10,5 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ItemDisciplinaRepository extends JpaRepository<ItemDisciplina, Long> {
 
-    List<ItemDisciplina> findAllByDisciplinaId(Long disciplinaId);
+    List<ItemDisciplina> findAllByDisciplinaIdAndGlobalTrue(Long disciplinaId);
+
 }

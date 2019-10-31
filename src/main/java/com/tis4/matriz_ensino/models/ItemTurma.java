@@ -15,25 +15,31 @@ public class ItemTurma {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank
-    private String titulo;
-    @NotBlank
-    private String descricao;
-    @NotBlank
-    private String objetivo;
     @NotNull
-    private Long disciplinaId;
-    @NotNull
-    private Byte bimestre; 
+    private Long itemDisciplinaId;
     @NotNull
     private Long turmaId;
-    @NotNull
-    private Boolean global;
+    @NotBlank
+    private String status;
 
-    private String status = "Pendente";
+    public ItemTurma(Long id, Long itemDisciplinaId, Long turmaId, String status) {
+        this.id = id;
+        this.itemDisciplinaId = itemDisciplinaId;
+        this.turmaId = turmaId;
+        this.status = status == null ? "Pendente" : status;
+    }
 
+    public ItemTurma(Long itemDisciplinaId, Long turmaId) {
+        this.itemDisciplinaId = itemDisciplinaId;
+        this.turmaId = turmaId;
+        this.status = "Pendente";
+    }
 
-    public Long getId() {
+    public ItemTurma() {
+        
+    }
+
+	public Long getId() {
         return this.id;
     }
 
@@ -41,44 +47,12 @@ public class ItemTurma {
         this.id = id;
     }
 
-    public String getTitulo() {
-        return this.titulo;
+    public Long getItemDisciplinaId() {
+        return this.itemDisciplinaId;
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-   
-    public String getDescricao() {
-        return this.descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public String getObjetivo() {
-        return this.objetivo;
-    }
-
-    public void setObjetivo(String objetivo) {
-        this.objetivo = objetivo;
-    }
-
-    public Long getDisciplinaId() {
-        return this.disciplinaId;
-    }
-
-    public void setDisciplinaId(Long disciplinaId) {
-        this.disciplinaId = disciplinaId;
-    }
-
-    public Byte getBimestre() {
-        return this.bimestre;
-    }
-
-    public void setBimestre(Byte bimestre) {
-        this.bimestre = bimestre;
+    public void setItemDisciplinaId(Long itemDisciplinaId) {
+        this.itemDisciplinaId = itemDisciplinaId;
     }
 
     public Long getTurmaId() {
@@ -87,14 +61,6 @@ public class ItemTurma {
 
     public void setTurmaId(Long turmaId) {
         this.turmaId = turmaId;
-    }
-
-    public Boolean isGlobal() {
-        return this.global;
-    }
-
-    public void setGlobal(Boolean global) {
-        this.global = global;
     }
 
     public String getStatus() {

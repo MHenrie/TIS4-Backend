@@ -24,8 +24,23 @@ public class ItemDisciplina {
     @NotNull
     private Long disciplinaId;
     @NotNull
-    private Byte bimestre; 
+    private Byte bimestre;
+    @NotNull
+    private Boolean global;
 
+    public ItemDisciplina(Long id, String titulo, String descricao, String objetivo, Long disciplinaId, Byte bimestre, Boolean global) {
+        this.id = id;
+        this.titulo = titulo;
+        this.descricao = descricao;
+        this.objetivo = objetivo;
+        this.disciplinaId = disciplinaId;
+        this.bimestre = bimestre;
+        this.global = global == null ? true : false;
+    }
+
+    public ItemDisciplina(){
+
+    }
 
     public Long getId() {
         return this.id;
@@ -42,7 +57,7 @@ public class ItemDisciplina {
     public void setTitulo(String titulo) {
         this.titulo = titulo;
     }
-   
+
     public String getDescricao() {
         return this.descricao;
     }
@@ -73,6 +88,18 @@ public class ItemDisciplina {
 
     public void setBimestre(Byte bimestre) {
         this.bimestre = bimestre;
+    }
+
+    public Boolean getGlobal() {
+        return this.global;
+    }
+
+    public void setGlobal(Boolean global) {
+        this.global = global;
+    }
+
+    public Boolean isGlobal() {
+        return this.global;
     }
 
 }

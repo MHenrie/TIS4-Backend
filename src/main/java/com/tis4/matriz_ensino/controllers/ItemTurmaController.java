@@ -1,12 +1,16 @@
 package com.tis4.matriz_ensino.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.validation.Valid;
-
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.tis4.matriz_ensino.models.Item;
+import com.tis4.matriz_ensino.models.ItemDisciplina;
 import com.tis4.matriz_ensino.models.ItemTurma;
+import com.tis4.matriz_ensino.repositories.ItemDisciplinaRepository;
 import com.tis4.matriz_ensino.repositories.ItemTurmaRepository;
+import com.tis4.matriz_ensino.services.DataIntegrityService;
 import com.tis4.matriz_ensino.services.SecurityService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,70 +34,101 @@ import org.springframework.web.server.ResponseStatusException;
 public class ItemTurmaController {
 
     @Autowired
-    private ItemTurmaRepository repository;
+    private ItemTurmaRepository iTurmaRepository;
+    @Autowired
+    private ItemDisciplinaRepository iDisciplinaRepository;
     @Autowired
     private SecurityService security;
+    @Autowired
+    private DataIntegrityService dataIntegrity;
 
     @GetMapping("/item-turma/{id}")
-    public ItemTurma retornarItemTurma(@PathVariable Long id) {
-        Optional<ItemTurma> itemTurma = repository.findById(id);
+    public ObjectNode retornarItemTurmaCompleto(@PathVariable Long id) {
+        Optional<ItemTurma> itemTurma = iTurmaRepository.findById(id);
 
-        if (itemTurma.isPresent())
-            return itemTurma.get();
+        if (itemTurma.isPresent()) {
+            Long itemDisciplinaId = itemTurma.get().getItemDisciplinaId();
+            Optional<ItemDisciplina> itemDisciplina = iDisciplinaRepository.findById(itemDisciplinaId);
 
+            return dataIntegrity.itemComplete(itemTurma.get(), itemDisciplina.get());
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum item foi encontrado com o ID informado.");
+    }
+
+    @GetMapping("/item-turma/{id}/descricao")
+    public String retornarItemTurmaDescricao(@PathVariable Long id) {
+        Optional<ItemTurma> itemTurma = iTurmaRepository.findById(id);
+
+        if (itemTurma.isPresent()) {
+            Long itemDisciplinaId = itemTurma.get().getItemDisciplinaId();
+            Optional<ItemDisciplina> itemDisciplina = iDisciplinaRepository.findById(itemDisciplinaId);
+
+            return itemDisciplina.get().getDescricao();
+        }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Nenhum item foi encontrado com o ID informado.");
     }
 
     @PostMapping("/item-turma")
     @ResponseStatus(HttpStatus.CREATED)
-    public ItemTurma salvarItemTurma(@RequestBody @Valid ItemTurma itemTurma, @RequestParam("user") Long userId) {
+    public ObjectNode salvarItemTurma(@RequestBody Item item, @RequestParam("user") Long userId) {
 
         if (security.isProfessor(userId)) {
 
-            if (itemTurma.getId() == null)
-                return repository.save(itemTurma);
+            ItemDisciplina itemDisciplina;
+            ItemTurma itemTurma;
 
+            if (item.getItemDisciplina().getId() == null && item.getItemTurma().getId() == null) {
+
+                itemDisciplina = iDisciplinaRepository.save(item.getItemDisciplina());
+                item.setItemDisciplinaId(itemDisciplina.getId());
+                itemTurma = iTurmaRepository.save(item.getItemTurma());
+                return dataIntegrity.itemResume(itemTurma, itemDisciplina);
+            }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Não é admitido um valor de ID para criar um novo item.");
+                    "Não são admitidos valores de ID para criar um item");
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                 "Falha de Autenticação: você não tem permissão para criar novos itens.");
     }
 
-    @PutMapping("/item-turma")
-    public ItemTurma atualizarItemTurma(@RequestBody @Valid ItemTurma itemTurma, @RequestParam("user") Long userId) {
+    @PutMapping("/item-turma/{id}")
+    public void atualizarItemTurma(@RequestBody String status, @PathVariable("id") Long itemId,
+            @RequestParam("user") Long userId) {
 
         if (security.isProfessor(userId)) {
-
-            if (itemTurma.getId() != null)
-                return repository.save(itemTurma);
-
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "É necessário informar um ID de item para realizar alterações.");
-        }
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                "Falha de Autenticação: você não tem permissão para alterar os dados de itens.");
+            Optional<ItemTurma> itemTurma = iTurmaRepository.findById(itemId);
+            itemTurma.get().setStatus(status);
+            iTurmaRepository.save(itemTurma.get());
+        } else
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Falha de Autenticação: você não tem permissão para alterar os dados deste item.");
     }
 
     @DeleteMapping("/item-turma/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarItemTurma(@PathVariable("id") Long itemId, @RequestParam("user") Long userId) {
 
-        if (security.isProfessor(userId))
-            repository.deleteById(itemId);
-        else
+        if (security.isProfessor(userId)) {
+            Optional<ItemTurma> itemTurma = iTurmaRepository.findById(itemId);
+            iTurmaRepository.deleteById(itemId);
+            iDisciplinaRepository.deleteById(itemTurma.get().getItemDisciplinaId());
+        } else
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Falha de Autenticação: você não tem permissão para excluir itens.");
+                    "Falha de Autenticação: você não tem permissão para excluir este item.");
     }
 
     @GetMapping("disciplina/{disciplinaId}/turma/{turmaId}/itens-turma")
-    public List<ItemTurma> listarItensPorTurma(@PathVariable Long disciplinaId, @PathVariable Long turmaId,
-            @RequestParam("filter") Boolean hasFilter) {
+    public List<ObjectNode> listarItensPorTurma(@PathVariable Long disciplinaId, @PathVariable Long turmaId) {
 
-        if (!hasFilter)
-            return repository.findAllByDisciplinaIdAndTurmaId(disciplinaId, turmaId);
-        else
-            return repository.findAllByDisciplinaIdAndTurmaIdAndGlobalFalse(disciplinaId, turmaId);
+        List<ItemTurma> itensTurma = iTurmaRepository.findAllByTurmaId(turmaId);
+        List<ObjectNode> lista = new ArrayList<ObjectNode>();
+
+        itensTurma.forEach(item -> {
+            ItemDisciplina itemDisciplina = iDisciplinaRepository.findById(item.getItemDisciplinaId()).get();
+            if (itemDisciplina.getDisciplinaId() == disciplinaId)
+                lista.add(dataIntegrity.itemResume(item, itemDisciplina));
+        });
+
+        return lista;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.tis4.matriz_ensino.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.tis4.matriz_ensino.models.Turma;
@@ -13,5 +14,7 @@ public interface TurmaRepository extends JpaRepository<Turma, Long> {
     Optional<Turma> findByProfessorId(Long professorId);
 
     Optional<Turma> findBySupervisorId(Long supervisorId);
+
+    List<Turma> findAllBySerie(String serie);
 
 }

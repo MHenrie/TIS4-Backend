@@ -10,7 +10,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ItemTurmaRepository extends JpaRepository<ItemTurma, Long> {
 
-    List<ItemTurma> findAllByDisciplinaIdAndTurmaId(Long disciplinaId, Long turmaId);
+    List<ItemTurma> findAllByTurmaId(Long turmaId);
 
-    List<ItemTurma> findAllByDisciplinaIdAndTurmaIdAndGlobalFalse(Long disciplinaId, Long turmaId);
+    List<ItemTurma> findAllByItemDisciplinaId(Long itemDisciplinaId);
+
 }

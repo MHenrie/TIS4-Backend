@@ -65,7 +65,8 @@ public class ItemDisciplinaController {
     public ItemDisciplina atualizarItemDisciplina(@RequestBody @Valid ItemDisciplina itemDisciplina,
             @RequestParam("user") Long userId) {
 
-        if (security.isAdministrador(userId)) {
+        if (security.isAdministrador(userId) && itemDisciplina.isGlobal()
+                || security.isProfessor(userId) && !itemDisciplina.isGlobal()) {
 
             if (itemDisciplina.getId() != null)
                 return repository.save(itemDisciplina);
@@ -90,7 +91,7 @@ public class ItemDisciplinaController {
 
     @GetMapping("/disciplina/{id}/itens-disciplina")
     public List<ItemDisciplina> listarItensPorDisciplina(@PathVariable("id") Long disciplinaId) {
-        return repository.findAllByDisciplinaId(disciplinaId);
+        return repository.findAllByDisciplinaIdAndGlobalTrue(disciplinaId);
     }
 
 }
