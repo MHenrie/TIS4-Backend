@@ -21,9 +21,9 @@ public class Turma {
     private String serie;
     @NotNull
     private Short ano;
-    @NotBlank
+    @NotNull
     private Long supervisorId;
-    @NotBlank
+    @NotNull
     private Long professorId;
 
 

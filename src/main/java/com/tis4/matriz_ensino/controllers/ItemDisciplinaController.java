@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import com.tis4.matriz_ensino.models.ItemDisciplina;
 import com.tis4.matriz_ensino.repositories.ItemDisciplinaRepository;
+import com.tis4.matriz_ensino.services.DataIntegrityService;
 import com.tis4.matriz_ensino.services.SecurityService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,8 @@ public class ItemDisciplinaController {
     private ItemDisciplinaRepository repository;
     @Autowired
     private SecurityService security;
+    @Autowired
+    private DataIntegrityService dataIntegrity;
 
     @GetMapping("/item-disciplina/{id}")
     public ItemDisciplina retornarItemDisciplina(@PathVariable Long id) {
@@ -51,8 +54,11 @@ public class ItemDisciplinaController {
 
         if (security.isAdministrador(userId)) {
 
-            if (itemDisciplina.getId() == null)
-                return repository.save(itemDisciplina);
+            if (itemDisciplina.getId() == null) {
+                ItemDisciplina saved = repository.save(itemDisciplina);
+                dataIntegrity.novoItemDisciplinaCascade(saved.getId(), saved.getDisciplinaId());
+                return saved;
+            }
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Não é admitido um valor de ID para criar um novo item.");
@@ -82,9 +88,10 @@ public class ItemDisciplinaController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarItemDisciplina(@PathVariable("id") Long itemId, @RequestParam("user") Long userId) {
 
-        if (security.isAdministrador(userId))
+        if (security.isAdministrador(userId)) {
             repository.deleteById(itemId);
-        else
+            dataIntegrity.excluirItemDisciplinaCascade(itemId);
+        } else
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Falha de Autenticação: você não tem permissão para excluir itens.");
     }

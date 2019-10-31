@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import com.tis4.matriz_ensino.services.DataIntegrityService;
 import com.tis4.matriz_ensino.services.SecurityService;
 import com.tis4.matriz_ensino.models.Turma;
 import com.tis4.matriz_ensino.repositories.TurmaRepository;
@@ -33,6 +34,8 @@ public class TurmaController {
     private TurmaRepository repository;
     @Autowired
     private SecurityService security;
+    @Autowired
+    private DataIntegrityService dataIntegrity;
 
     @GetMapping("/turmas")
     public List<Turma> listarTurmas() {
@@ -55,9 +58,11 @@ public class TurmaController {
 
         if (security.isAdministrador(userId)) {
 
-            if (turma.getId() == null)
-                return repository.save(turma);
-
+            if (turma.getId() == null) {
+                Turma saved = repository.save(turma);
+                dataIntegrity.novaTurmaCascade(saved.getId(), saved.getSerie());
+                return saved;
+            }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Não é admitido um valor de ID para criar uma nova turma.");
         }
@@ -84,9 +89,10 @@ public class TurmaController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarTurma(@PathVariable("id") Long turmaId, @RequestParam("user") Long userId) {
 
-        if (security.isAdministrador(userId))
+        if (security.isAdministrador(userId)) {
             repository.deleteById(turmaId);
-        else
+            dataIntegrity.excluirTurmaCascade(turmaId);
+        } else
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Falha de Autenticação: você não tem permissão para excluir turmas.");
     }

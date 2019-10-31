@@ -94,7 +94,7 @@ public class ItemTurmaController {
     @PutMapping("/item-turma/{id}")
     public void atualizarItemTurma(@RequestBody String status, @PathVariable("id") Long itemId,
             @RequestParam("user") Long userId) {
-
+                
         if (security.isProfessor(userId)) {
             Optional<ItemTurma> itemTurma = iTurmaRepository.findById(itemId);
             itemTurma.get().setStatus(status);
