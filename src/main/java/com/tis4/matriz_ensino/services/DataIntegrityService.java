@@ -54,6 +54,11 @@ public class DataIntegrityService {
         return usuarioAtual.get().getSenha().equals(senha) ? true : false;
     }
 
+    public boolean turmaExistente(String nome, Short ano) {
+        Optional<Turma> turma = turmaRepository.findByNomeAndAno(nome, ano);
+        return turma.isPresent();
+    }
+
     public ObjectNode itemResume(ItemTurma itemTurma, ItemDisciplina itemDisciplina) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode item = mapper.createObjectNode();

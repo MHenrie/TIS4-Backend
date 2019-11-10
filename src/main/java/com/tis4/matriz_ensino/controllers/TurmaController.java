@@ -59,9 +59,15 @@ public class TurmaController {
         if (security.isAdministrador(userId)) {
 
             if (turma.getId() == null) {
-                Turma saved = repository.save(turma);
-                dataIntegrity.novaTurmaCascade(saved.getId(), saved.getSerie());
-                return saved;
+
+                if (!dataIntegrity.turmaExistente(turma.getNome(), turma.getAno())) {
+
+                    Turma saved = repository.save(turma);
+                    dataIntegrity.novaTurmaCascade(saved.getId(), saved.getSerie());
+                    return saved;
+                }
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Já existe uma turma com este nome para o ano de " + turma.getAno() + ".");
             }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Não é admitido um valor de ID para criar uma nova turma.");
@@ -96,4 +102,26 @@ public class TurmaController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Falha de Autenticação: você não tem permissão para excluir turmas.");
     }
+
+    @GetMapping("/turma/professor/{id}")
+    public Turma retornaTurmaPorProfessor(@PathVariable Long professorId, @RequestParam Short ano) {
+        Optional<Turma> turma = repository.findByProfessorIdAndAno(professorId, ano);
+
+        if (turma.isPresent())
+            return turma.get();
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Não há turma associada a este perfil de Professor.");
+    }
+
+    @GetMapping("/turmas/supervisor/{id}")
+    public List<Turma> retornaTurmasPorSupervisor(@PathVariable Long supervisorId, @RequestParam Short ano) {
+        List<Turma> turmas = repository.findAllBySupervisorIdAndAno(supervisorId, ano);
+
+        if (turmas.size() > 0)
+            return turmas;
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Não há turmas associadas a este perfil de Supervisor.");
+    }
+
 }

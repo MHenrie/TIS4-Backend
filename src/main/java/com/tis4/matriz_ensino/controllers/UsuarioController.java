@@ -135,4 +135,5 @@ public class UsuarioController {
         String tipo = categoria.substring(0, 1).toUpperCase() + categoria.substring(1, categoria.length());
         return repository.findAllByTipo(tipo);
     }
+    
 }

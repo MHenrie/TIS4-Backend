@@ -14,4 +14,6 @@ public interface ItemTurmaRepository extends JpaRepository<ItemTurma, Long> {
 
     List<ItemTurma> findAllByItemDisciplinaId(Long itemDisciplinaId);
 
+    List<ItemTurma> findAllByTurmaIdAndStatus(Long turmaId, String status);
+
 }

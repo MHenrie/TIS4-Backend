@@ -1,6 +1,7 @@
 package com.tis4.matriz_ensino.controllers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -94,7 +95,7 @@ public class ItemTurmaController {
     @PutMapping("/item-turma/{id}")
     public void atualizarItemTurma(@RequestBody String status, @PathVariable("id") Long itemId,
             @RequestParam("user") Long userId) {
-                
+
         if (security.isProfessor(userId)) {
             Optional<ItemTurma> itemTurma = iTurmaRepository.findById(itemId);
             itemTurma.get().setStatus(status);
@@ -116,8 +117,8 @@ public class ItemTurmaController {
                     "Falha de Autenticação: você não tem permissão para excluir este item.");
     }
 
-    @GetMapping("disciplina/{disciplinaId}/turma/{turmaId}/itens-turma")
-    public List<ObjectNode> listarItensPorTurma(@PathVariable Long disciplinaId, @PathVariable Long turmaId) {
+    @GetMapping("/turma/{turmaId}/disciplina/{disciplinaId}/itens-turma")
+    public List<ObjectNode> listarItensPorTurmaAndDisciplina(@PathVariable Long turmaId, @PathVariable Long disciplinaId) {
 
         List<ItemTurma> itensTurma = iTurmaRepository.findAllByTurmaId(turmaId);
         List<ObjectNode> lista = new ArrayList<ObjectNode>();
@@ -129,6 +130,24 @@ public class ItemTurmaController {
         });
 
         return lista;
+    }
+    
+
+    @GetMapping("/turma/{turmaId}/disciplina/{disciplinaId}/quantidade")
+    public List<Integer> retornarQuantidadePorDisciplina(@PathVariable Long turmaId, @PathVariable Long disciplinaId,
+            @RequestParam String status) {
+        List<ItemTurma> itensTurma = iTurmaRepository.findAllByTurmaId(turmaId);
+        Integer total = 0, counter = 0;
+
+        for (ItemTurma item : itensTurma) {
+            ItemDisciplina itemDisciplina = iDisciplinaRepository.findById(item.getItemDisciplinaId()).get();
+            if (itemDisciplina.getDisciplinaId() == disciplinaId) {
+                total++;
+                if (item.getStatus().equals(status))
+                    counter++;
+            }
+        }
+        return Arrays.asList(counter, total);
     }
 
 }

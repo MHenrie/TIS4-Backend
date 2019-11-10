@@ -59,7 +59,6 @@ public class ItemDisciplinaController {
                 dataIntegrity.novoItemDisciplinaCascade(saved.getId(), saved.getDisciplinaId());
                 return saved;
             }
-
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Não é admitido um valor de ID para criar um novo item.");
         }
