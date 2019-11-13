@@ -1,5 +1,6 @@
 package com.tis4.matriz_ensino.services;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +34,7 @@ public class DataIntegrityService {
     @Autowired
     private ItemTurmaRepository iTurmaRepository;
 
-    public boolean usernameDisponivel(String username) {
+    public Boolean usernameDisponivel(String username) {
         Optional<Usuario> usuarioExistente = usuarioRepository.findByUsername(username);
 
         if (usuarioExistente.isPresent())
@@ -42,7 +43,7 @@ public class DataIntegrityService {
         return true;
     }
 
-    public boolean usernameEqualsId(String username, Long id) {
+    public Boolean usernameEqualsId(String username, Long id) {
         Optional<Usuario> usuarioExistente = usuarioRepository.findByUsernameAndId(username, id);
 
         return usuarioExistente.isPresent() ? true : false;
@@ -54,7 +55,7 @@ public class DataIntegrityService {
         return usuarioAtual.get().getSenha().equals(senha) ? true : false;
     }
 
-    public boolean turmaExistente(String nome, Short ano) {
+    public Boolean turmaExistente(String nome, Short ano) {
         Optional<Turma> turma = turmaRepository.findByNomeAndAno(nome, ano);
         return turma.isPresent();
     }
@@ -89,6 +90,82 @@ public class DataIntegrityService {
         item.put("disciplinaId", itemDisciplina.getDisciplinaId());
 
         return item;
+    }
+
+    public ObjectNode turmaProgresso(Turma turma) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode turmaProgresso = mapper.createObjectNode();
+
+        turmaProgresso.put("id", turma.getId());
+        turmaProgresso.put("nome ", turma.getNome());
+        String nomeProfessor = usuarioRepository.findById(turma.getProfessorId()).get().getNomeCompleto();
+        turmaProgresso.put("professor", nomeProfessor);
+        List<ItemTurma> itensTurma = iTurmaRepository.findAllByTurmaId(turma.getId());
+        List<Integer> quantidades = quantidadePorStatus(itensTurma);
+        turmaProgresso.put("total", itensTurma.size());
+        turmaProgresso.put("pendente", quantidades.get(0));
+        turmaProgresso.put("emAndamento", quantidades.get(1));
+        turmaProgresso.put("retomar", quantidades.get(2));
+        turmaProgresso.put("concluido", quantidades.get(3));
+
+        return turmaProgresso;
+    }
+
+    private List<Integer> quantidadePorStatus(List<ItemTurma> itens) {
+        Integer pendentes = 0, concluidos = 0, emAndamento = 0, retomar = 0;
+        for (ItemTurma item : itens) {
+            switch (item.getStatus()) {
+            case "Pendente":
+                pendentes++;
+                break;
+
+            case "Em Andamento":
+                emAndamento++;
+                break;
+
+            case "Retomar":
+                retomar++;
+                break;
+
+            case "Concluído":
+                concluidos++;
+                break;
+            }
+        }
+
+        return Arrays.asList(pendentes, emAndamento, retomar, concluidos);
+    }
+
+    public List<Disciplina> disciplinasTurma(Long turmaId) {
+        String serie = turmaRepository.findById(turmaId).get().getSerie();
+        return disciplinaRepository.findAllBySerie(serie);
+    }
+
+    public List<ItemTurma> itensTurma(Long turmaId) {
+        return iTurmaRepository.findAllByTurmaId(turmaId);
+    }
+
+    public Boolean itemPertenceDisciplina(Long itemDisciplinaId, Long disciplinaId) {
+        ItemDisciplina item = iDisciplinaRepository.findById(itemDisciplinaId).get();
+        return item.getDisciplinaId() == disciplinaId;
+    }
+
+    public ObjectNode disciplinaProgresso(Disciplina disciplina, List<ItemTurma> itensTurma) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode disciplinaProgresso = mapper.createObjectNode();
+
+        disciplinaProgresso.put("id", disciplina.getId());
+        disciplinaProgresso.put("nome ", disciplina.getNome());
+        List<Integer> quantidades = quantidadePorStatus(itensTurma);
+        disciplinaProgresso.put("total", itensTurma.size());
+        disciplinaProgresso.put("pendente", quantidades.get(0));
+        disciplinaProgresso.put("emAndamento", quantidades.get(1));
+        disciplinaProgresso.put("retomar", quantidades.get(2));
+        disciplinaProgresso.put("concluido", quantidades.get(3));
+
+        return disciplinaProgresso;
     }
 
     public void novaTurmaCascade(Long turmaId, String serie) {

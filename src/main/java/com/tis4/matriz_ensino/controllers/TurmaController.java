@@ -1,5 +1,6 @@
 package com.tis4.matriz_ensino.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,6 +8,7 @@ import javax.validation.Valid;
 
 import com.tis4.matriz_ensino.services.DataIntegrityService;
 import com.tis4.matriz_ensino.services.SecurityService;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tis4.matriz_ensino.models.Turma;
 import com.tis4.matriz_ensino.repositories.TurmaRepository;
 
@@ -104,7 +106,7 @@ public class TurmaController {
     }
 
     @GetMapping("/turma/professor/{id}")
-    public Turma retornaTurmaPorProfessor(@PathVariable Long professorId, @RequestParam Short ano) {
+    public Turma retornaTurmaPorProfessor(@PathVariable("id") Long professorId, @RequestParam Short ano) {
         Optional<Turma> turma = repository.findByProfessorIdAndAno(professorId, ano);
 
         if (turma.isPresent())
@@ -113,13 +115,17 @@ public class TurmaController {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Não há turma associada a este perfil de Professor.");
     }
 
-    @GetMapping("/turmas/supervisor/{id}")
-    public List<Turma> retornaTurmasPorSupervisor(@PathVariable Long supervisorId, @RequestParam Short ano) {
+    @GetMapping("/turmas/supervisor/{id}/progresso")
+    public List<ObjectNode> retornaTurmasPorSupervisor(@PathVariable("id") Long supervisorId, @RequestParam Short ano) {
         List<Turma> turmas = repository.findAllBySupervisorIdAndAno(supervisorId, ano);
+        List<ObjectNode> turmasProgresso = new ArrayList<ObjectNode>();
 
-        if (turmas.size() > 0)
-            return turmas;
-
+        if (turmas.size() > 0) {
+            turmas.forEach(turma -> {
+                turmasProgresso.add(dataIntegrity.turmaProgresso(turma));
+            });
+            return turmasProgresso;
+        }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Não há turmas associadas a este perfil de Supervisor.");
     }

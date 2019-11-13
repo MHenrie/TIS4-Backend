@@ -1,12 +1,16 @@
 package com.tis4.matriz_ensino.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tis4.matriz_ensino.models.Disciplina;
+import com.tis4.matriz_ensino.models.ItemTurma;
 import com.tis4.matriz_ensino.repositories.DisciplinaRepository;
+import com.tis4.matriz_ensino.services.DataIntegrityService;
 import com.tis4.matriz_ensino.services.SecurityService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,8 @@ public class DisciplinaController {
     private DisciplinaRepository repository;
     @Autowired
     private SecurityService security;
+    @Autowired
+    private DataIntegrityService dataIntegrity;
 
     @GetMapping("/disciplinas")
     public List<Disciplina> listarDisciplinas() {
@@ -97,4 +103,23 @@ public class DisciplinaController {
     public List<Disciplina> listarDisciplinasPorSerie(@PathVariable String serie) {
         return repository.findAllBySerie(serie);
     }
+
+    @GetMapping("/disciplinas/turma/{id}/progresso")
+    public List<ObjectNode> retornaDisciplinasPorTurma(@PathVariable("id") Long turmaId) {
+        List<Disciplina> disciplinasTurma = dataIntegrity.disciplinasTurma(turmaId);
+        List<ItemTurma> itensTurma = dataIntegrity.itensTurma(turmaId);
+        List<ItemTurma> itensDisciplina = new ArrayList<ItemTurma>();
+        List<ObjectNode> disciplinasProgresso = new ArrayList<ObjectNode>();
+
+        disciplinasTurma.forEach(disciplina -> {
+            itensTurma.forEach(item -> {
+                if (dataIntegrity.itemPertenceDisciplina(item.getItemDisciplinaId(), disciplina.getId()))
+                    itensDisciplina.add(item);
+            });
+            disciplinasProgresso.add(dataIntegrity.disciplinaProgresso(disciplina, itensDisciplina));
+            itensDisciplina.clear();
+        });
+        return disciplinasProgresso;
+    }
+
 }
