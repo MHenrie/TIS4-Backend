@@ -93,7 +93,7 @@ public class ItemTurmaController {
     }
 
     @PutMapping("/item-turma/{id}")
-    public void atualizarItemTurma(@RequestBody String status, @PathVariable("id") Long itemId,
+    public void atualizarStatusItemTurma(@RequestBody String status, @PathVariable("id") Long itemId,
             @RequestParam("user") Long userId) {
 
         if (security.isProfessor(userId)) {
@@ -117,7 +117,7 @@ public class ItemTurmaController {
                     "Falha de Autenticação: você não tem permissão para excluir este item.");
     }
 
-    @GetMapping("/turma/{turmaId}/disciplina/{disciplinaId}/itens-turma")
+    @GetMapping("/itens-turma/turma/{turmaId}/disciplina/{disciplinaId}")
     public List<ObjectNode> listarItensPorTurmaAndDisciplina(@PathVariable Long turmaId, @PathVariable Long disciplinaId) {
 
         List<ItemTurma> itensTurma = iTurmaRepository.findAllByTurmaId(turmaId);
@@ -133,7 +133,7 @@ public class ItemTurmaController {
     }
     
 
-    @GetMapping("/turma/{turmaId}/disciplina/{disciplinaId}/quantidade")
+    @GetMapping("/itens-turma/turma/{turmaId}/disciplina/{disciplinaId}/quantidade")
     public List<Integer> retornarQuantidadePorDisciplina(@PathVariable Long turmaId, @PathVariable Long disciplinaId,
             @RequestParam String status) {
         List<ItemTurma> itensTurma = iTurmaRepository.findAllByTurmaId(turmaId);

@@ -64,9 +64,13 @@ public class TurmaController {
 
                 if (!dataIntegrity.turmaExistente(turma.getNome(), turma.getAno())) {
 
-                    Turma saved = repository.save(turma);
-                    dataIntegrity.novaTurmaCascade(saved.getId(), saved.getSerie());
-                    return saved;
+                    if (!dataIntegrity.professorAlocado(turma.getProfessorId(), turma.getAno())) {
+                        Turma saved = repository.save(turma);
+                        dataIntegrity.novaTurmaCascade(saved.getId(), saved.getSerie());
+                        return saved;
+                    }
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Este professor já está alocado em outra turma de " + turma.getAno() + ".");
                 }
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "Já existe uma turma com este nome para o ano de " + turma.getAno() + ".");
@@ -83,9 +87,20 @@ public class TurmaController {
 
         if (security.isAdministrador(userId)) {
 
-            if (turma.getId() != null)
-                return repository.save(turma);
+            if (turma.getId() != null) {
 
+                if (!dataIntegrity.turmaExistente(turma.getId(), turma.getNome(), turma.getAno())) {
+
+                    if (!dataIntegrity.professorAlocado(turma.getId(), turma.getProfessorId(), turma.getAno())) {
+
+                        return repository.save(turma);
+                    }
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "Este professor já está alocado em outra turma de " + turma.getAno() + ".");
+                }
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Já existe uma turma com este nome para o ano de " + turma.getAno() + ".");
+            }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "É necessário informar um ID de turma para realizar alterações.");
         }

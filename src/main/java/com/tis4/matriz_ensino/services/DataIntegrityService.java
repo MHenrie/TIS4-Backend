@@ -60,6 +60,21 @@ public class DataIntegrityService {
         return turma.isPresent();
     }
 
+    public Boolean professorAlocado(Long professorId, Short ano) {
+        Optional<Turma> turma = turmaRepository.findByProfessorIdAndAno(professorId, ano);
+        return turma.isPresent();
+    }
+
+    public Boolean turmaExistente(Long turmaId, String nome, Short ano) {
+        Optional<Turma> turma = turmaRepository.findByNomeAndAno(nome, ano);
+        return turma.isPresent() && turma.get().getId() != turmaId;
+    }
+
+    public Boolean professorAlocado(Long turmaId, Long professorId, Short ano) {
+        Optional<Turma> turma = turmaRepository.findByProfessorIdAndAno(professorId, ano);
+        return turma.isPresent() && turma.get().getId() != turmaId;
+    }
+
     public ObjectNode itemResume(ItemTurma itemTurma, ItemDisciplina itemDisciplina) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode item = mapper.createObjectNode();
@@ -98,7 +113,7 @@ public class DataIntegrityService {
         ObjectNode turmaProgresso = mapper.createObjectNode();
 
         turmaProgresso.put("id", turma.getId());
-        turmaProgresso.put("nome ", turma.getNome());
+        turmaProgresso.put("nome", turma.getNome());
         String nomeProfessor = usuarioRepository.findById(turma.getProfessorId()).get().getNomeCompleto();
         turmaProgresso.put("professor", nomeProfessor);
         List<ItemTurma> itensTurma = iTurmaRepository.findAllByTurmaId(turma.getId());
@@ -157,7 +172,7 @@ public class DataIntegrityService {
         ObjectNode disciplinaProgresso = mapper.createObjectNode();
 
         disciplinaProgresso.put("id", disciplina.getId());
-        disciplinaProgresso.put("nome ", disciplina.getNome());
+        disciplinaProgresso.put("nome", disciplina.getNome());
         List<Integer> quantidades = quantidadePorStatus(itensTurma);
         disciplinaProgresso.put("total", itensTurma.size());
         disciplinaProgresso.put("pendente", quantidades.get(0));

@@ -95,7 +95,7 @@ public class ItemDisciplinaController {
                     "Falha de Autenticação: você não tem permissão para excluir itens.");
     }
 
-    @GetMapping("/disciplina/{id}/itens-disciplina")
+    @GetMapping("/itens-disciplina/disciplina/{id}")
     public List<ItemDisciplina> listarItensPorDisciplina(@PathVariable("id") Long disciplinaId) {
         return repository.findAllByDisciplinaIdAndGlobalTrue(disciplinaId);
     }
